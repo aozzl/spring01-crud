@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+    db.properties->applicationContext.xml(数据库配置信息=>DataSource=>QueryRunner=>Dao=>Service)
+    -->
+    <!--加载properties配置文件-->
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <!--配置数据源(连接池)-->
+    <bean class="org.apache.commons.dbcp2.BasicDataSource" id="dataSource">
+        <!--通过setter注入属性值-->
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.user}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+  <!--   <bean class="com.mchange.v2.c3p0.ComboPooledDataSource" id="dataSource">
+        <property name="driverClass" value="${jdbc.driver}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.user}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>-->
+
+    <!--QueryRunner中注入数据源-->
+    <bean class="org.apache.commons.dbutils.QueryRunner" id="queryRunner">
+        <!--通过过构造器注入数据源-->
+        <constructor-arg name="ds" ref="dataSource"/>
+    </bean>
+
+    <!--Dao中注入QueryRunner-->
+    <bean class="com.myspring.dao.impl.ProductDaoImpl" id="productDao">
+         <!--通过setter方法注入QueryRunner-->
+        <property name="queryRunner" ref="queryRunner"/>
+    </bean>
+
+
+    <!--Service中注入Dao-->
+    <bean class="com.myspring.service.impl.ProductServiceImpl" id="productService">
+        <!--通过setter方法注入Dao-->
+        <property name="productDao" ref="productDao"/>
+    </bean>
+</beans>
